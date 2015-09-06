@@ -63,6 +63,7 @@ def word_wrap(text):
         last_space = text[:80].rfind(' ')
         line, text = text[:last_space], text[last_space+1:]
         lines.append(line)
+    lines.append(text)
     lines.append('\n')
     return u'\n'.join(lines)
 
