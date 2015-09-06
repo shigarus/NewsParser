@@ -35,12 +35,9 @@ def html_to_readable(element):
         node.tag = 'span'
     for node in element.iter():
         tag = node.tag
-        text = node.text
         if tag == 'br' and paragraphs:
             paragraphs.append(cur_str)
-            cur_str = node.tail or u''
-        if not text:
-            continue
+            cur_str = u''
         if tag in TAGS_TO_SEPARATE:
             paragraphs.append(cur_str)
             if tag != 'li':
@@ -48,7 +45,7 @@ def html_to_readable(element):
             cur_str = u''
         cur_str = ''.join([
             cur_str,
-            text,
+            node.text or u'',
             node.tail or u''
         ])
     res = u''.join([
