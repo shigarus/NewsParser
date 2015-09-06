@@ -24,14 +24,21 @@ def html_to_readable(element):
         raise TypeError('element has to be lxml.html.HtmlElement instance')
     paragraphs = []
     cur_str = u''
+    for node in element.cssselect('a'):
+        href = node.get('href')
+        href = u'[{}]'.format(href)
+        tail = node.tail or u''
+        node.tail = u''.join((
+            href,
+            tail
+        ))
+        node.tag = 'span'
     for node in element.iter():
         tag = node.tag
         text = node.text
         if tag == 'br' and paragraphs:
             paragraphs.append(cur_str)
             cur_str = node.tail or u''
-        if tag in ('script', 'noscript'):
-            continue
         if not text:
             continue
         if tag in TAGS_TO_SEPARATE:
@@ -39,11 +46,6 @@ def html_to_readable(element):
             if tag != 'li':
                 paragraphs.append(u'')
             cur_str = u''
-        if tag == 'a':
-            text = u''.join([
-                text,
-                u'[{}]'.format(node.get('href'))
-            ])
         cur_str = ''.join([
             cur_str,
             text,
