@@ -26,6 +26,8 @@ def html_to_readable(element):
     cur_str = u''
     for node in element.cssselect('a'):
         href = node.get('href')
+        if not href:
+            continue
         href = u'[{}]'.format(href)
         tail = node.tail or u''
         node.tail = u''.join((
