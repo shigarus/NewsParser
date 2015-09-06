@@ -18,31 +18,30 @@ def html_to_readable(element):
     :return: unicode
     """
     if not isinstance(element, lxml.html.HtmlElement):
-        raise TypeError('element has to be lxml.etree.ElementTree instance')
+        raise TypeError('element has to be lxml.html.HtmlElement instance')
     paragraphs = []
     cur_str = u''
     for node in element.iter():
         tag = node.tag
+        text = node.text
         if tag == 'br' and paragraphs:
             paragraphs.append(cur_str)
             cur_str = u''
         if tag in ('script', 'noscript'):
             continue
-        if not node.text:
+        if not text:
             continue
-        if node.tag in TAGS_TO_SEPARATE:
+        if tag in TAGS_TO_SEPARATE:
             paragraphs.append(cur_str)
             if tag != 'li':
                 paragraphs.append(u'')
             cur_str = u''
-        if node.tag == 'a':
+        if tag == 'a':
             text = u''.join([
-                node.text,
+                text,
                 u'[{}]'.format(node.get('href'))
             ])
-        else:
-            text = node.text
-        cur_str = ''.join([cur_str, text])
+        cur_str = ''.join([cur_str, text, node.tail])
     return u''.join([
         word_wrap(text)
         for text in paragraphs
