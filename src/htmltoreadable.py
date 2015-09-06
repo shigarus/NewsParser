@@ -2,6 +2,7 @@
 import re
 
 import lxml.html
+import lxml.etree
 
 
 H_TAGS = ['h{}'.format(i) for i in range(1, 7)]
@@ -17,25 +18,40 @@ def html_to_readable(element):
         paragraphs and title separated by new line
         <a href='url'>sometext</a> transforms to sometext[url]
 
-    :param element: lxml.etree.ElementTree
+    :param element: lxml.html.HtmlElement
     :return: unicode
     """
     if not isinstance(element, lxml.html.HtmlElement):
         raise TypeError('element has to be lxml.html.HtmlElement instance')
-    paragraphs = []
-    cur_str = u''
     for node in element.cssselect('a'):
         href = node.get('href')
         if not href:
             continue
+        inner_tags_to_text(node)
         href = u'[{}]'.format(href)
         tail = node.tail or u''
         node.tail = u''.join((
             href,
             tail
         ))
-        node.tag = 'span'
+    inner_tags_to_text(element)
+    return element.text
+
+
+def inner_tags_to_text(element):
+    """
+    Replace inner tags to text
+    :param element: lxml.html.HtmlElement
+    """
+    if not isinstance(element, lxml.html.HtmlElement):
+        raise TypeError('element has to be lxml.html.HtmlElement instance')
+    paragraphs = []
+    cur_str = u''
     for node in element.iter():
+        if node is element:
+            tail = u''
+        else:
+            tail = node.tail or u''
         tag = node.tag
         if tag == 'br' and paragraphs:
             paragraphs.append(cur_str)
@@ -48,15 +64,19 @@ def html_to_readable(element):
         cur_str = ''.join([
             cur_str,
             node.text or u'',
-            node.tail or u''
+            tail
         ])
+    paragraphs.append(cur_str)
     res = u''.join([
         word_wrap(text)
         for text in paragraphs
     ])
     res = res.strip()
     res = re.sub(MANY_LINE_ENDINGS, '\r\n\r\n', res)
-    return res
+    for node in element.iter():
+        if node is not element:
+            node.getparent().remove(node)
+    element.text = res
 
 
 def word_wrap(text):
