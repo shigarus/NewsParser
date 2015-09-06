@@ -67,6 +67,10 @@ def word_wrap(text):
     lines = []
     while len(text) > 80:
         last_space = text[:80].rfind(' ')
+        if last_space == -1:
+            last_space = text.find(' ')
+        if last_space == -1:
+            break
         line, text = text[:last_space], text[last_space+1:]
         lines.append(line)
     lines.append(text)
