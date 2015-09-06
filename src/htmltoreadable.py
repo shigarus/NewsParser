@@ -46,7 +46,7 @@ def html_to_readable(element):
             href,
             tail
         ))
-        
+
     inner_tags_to_text(element)
     return element.text
 
@@ -78,11 +78,11 @@ def inner_tags_to_text(element):
                 paragraphs.append(u'')
             cur_str = u''
 
-        cur_str = ''.join([
+        cur_str = ''.join((
             cur_str,
             node.text or u'',
             tail
-        ])
+        ))
     paragraphs.append(cur_str)
 
     # need to delete inner tags to not include their text again
@@ -91,10 +91,10 @@ def inner_tags_to_text(element):
         if node is not element:
             node.getparent().remove(node)
 
-    res = u'\r\n'.join([
+    res = u'\r\n'.join((
         word_wrap(text)
         for text in paragraphs
-    ])
+    ))
     res = re.sub(MANY_LINE_ENDINGS, '\r\n\r\n', res)
     element.text = res
 
@@ -109,7 +109,7 @@ def word_wrap(text):
         raise TypeError('text parameter has to be basestring instance')
     text = del_trash_symbols(text)
     if len(text) <= 80:
-        return u''.join([text, u'\r\n'])
+        return u''.join((text, u'\r\n'))
     lines = []
     while len(text) > 80:
         last_space = text[:80].rfind(' ')
