@@ -44,7 +44,11 @@ def html_to_readable(element):
                 text,
                 u'[{}]'.format(node.get('href'))
             ])
-        cur_str = ''.join([cur_str, text, unicode(node.tail)])
+        cur_str = ''.join([
+            cur_str,
+            text,
+            node.tail or u''
+        ])
     res = u''.join([
         word_wrap(text)
         for text in paragraphs
