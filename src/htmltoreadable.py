@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
+import re
+
 import lxml.html
 
 
 H_TAGS = ['h{}'.format(i) for i in range(1, 7)]
 TAGS_TO_SEPARATE = H_TAGS + ['p', 'li', ]
+MANY_LINE_ENDINGS = re.compile('(\n|\r\n){3,}')
 
 
 def html_to_readable(element):
@@ -41,11 +44,14 @@ def html_to_readable(element):
                 text,
                 u'[{}]'.format(node.get('href'))
             ])
-        cur_str = ''.join([cur_str, text, node.tail])
-    return u''.join([
+        cur_str = ''.join([cur_str, text, unicode(node.tail)])
+    res = u''.join([
         word_wrap(text)
         for text in paragraphs
     ])
+    res = res.strip()
+    res = re.sub(MANY_LINE_ENDINGS, '\r\n\r\n', res)
+    return res
 
 
 def word_wrap(text):
