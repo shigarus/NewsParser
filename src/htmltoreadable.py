@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import lxml.etree
+import lxml.html
 
 
 H_TAGS = ['h{}'.format(i) for i in range(1, 7)]
@@ -17,7 +17,7 @@ def html_to_readable(element):
     :param element: lxml.etree.ElementTree
     :return: unicode
     """
-    if not isinstance(element, lxml.etree.ElementTree):
+    if not isinstance(element, lxml.html.HtmlElement):
         raise TypeError('element has to be lxml.etree.ElementTree instance')
     paragraphs = []
     cur_str = u''
