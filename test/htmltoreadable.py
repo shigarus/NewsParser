@@ -6,7 +6,8 @@ import grab
 
 from src import htmltoreadable as hr
 
-if __name__ == '__main__':
+
+def test():
     g = grab.Grab()
     g.go('http://habrahabr.ru/post/266293/')
     root_node = g.css('.post_show')
@@ -17,3 +18,8 @@ if __name__ == '__main__':
     outpath = os.path.join(path, 'out.log')
     with codecs.open(outpath, 'w', encoding='utf-8') as fh:
         fh.write(text)
+
+
+if __name__ == '__main__':
+    test()
+
