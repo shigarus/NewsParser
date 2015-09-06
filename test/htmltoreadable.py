@@ -8,8 +8,8 @@ from src import htmltoreadable as hr
 
 if __name__ == '__main__':
     g = grab.Grab()
-    g.go('http://lenta.ru/news/2015/09/06/lamafound/')
-    root_node = g.css('.b-topic__content')
+    g.go('http://habrahabr.ru/post/266293/')
+    root_node = g.css('.post_show')
     text = hr.html_to_readable(root_node)
     path = 'out'
     if not os.path.exists(path):
