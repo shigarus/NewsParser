@@ -29,7 +29,7 @@ def html_to_readable(element):
         text = node.text
         if tag == 'br' and paragraphs:
             paragraphs.append(cur_str)
-            cur_str = u''
+            cur_str = node.tail or u''
         if tag in ('script', 'noscript'):
             continue
         if not text:
