@@ -7,7 +7,16 @@ import lxml.etree
 
 H_TAGS = ['h{}'.format(i) for i in range(1, 7)]
 TAGS_TO_SEPARATE = H_TAGS + ['p', 'li', ]
+
 MANY_LINE_ENDINGS = re.compile('(\n|\r\n){3,}')
+TRASH_SPACES = re.compile(' {2,}')
+TRASH_SYMBOLS = re.compile('[\r\n\t]')
+
+
+def del_trash_symbols(line):
+    line = re.sub(TRASH_SYMBOLS, ' ', line)
+    line = re.sub(TRASH_SPACES, ' ', line)
+    return line.strip()
 
 
 def html_to_readable(element):
@@ -53,7 +62,7 @@ def inner_tags_to_text(element):
         else:
             tail = node.tail or u''
         tag = node.tag
-        if tag == 'br' and paragraphs:
+        if tag == 'br':
             paragraphs.append(cur_str)
             cur_str = u''
         if tag in TAGS_TO_SEPARATE:
@@ -67,11 +76,10 @@ def inner_tags_to_text(element):
             tail
         ])
     paragraphs.append(cur_str)
-    res = u''.join([
+    res = u'\r\n'.join([
         word_wrap(text)
         for text in paragraphs
     ])
-    res = res.strip()
     res = re.sub(MANY_LINE_ENDINGS, '\r\n\r\n', res)
     for node in element.iter():
         if node is not element:
@@ -81,14 +89,15 @@ def inner_tags_to_text(element):
 
 def word_wrap(text):
     """
-    Splits text with \n. Max symbols 80. Word wrap.
+    Splits text with \r\n. Max symbols 80. Word wrap.
     :param text: basestring
     :return: unicode
     """
     if not isinstance(text, basestring):
         raise TypeError('text parameter has to be basestring instance')
+    text = del_trash_symbols(text)
     if len(text) <= 80:
-        return u''.join([text, u'\n'])
+        return u''.join([text, u'\r\n'])
     lines = []
     while len(text) > 80:
         last_space = text[:80].rfind(' ')
@@ -99,6 +108,6 @@ def word_wrap(text):
         line, text = text[:last_space], text[last_space+1:]
         lines.append(line)
     lines.append(text)
-    lines.append('\n')
-    return u'\n'.join(lines)
+    lines.append('\r\n')
+    return u'\r\n'.join(lines)
 
