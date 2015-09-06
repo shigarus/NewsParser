@@ -33,8 +33,8 @@ def html_to_readable(element):
     if not isinstance(element, lxml.html.HtmlElement):
         raise TypeError('element has to be lxml.html.HtmlElement instance')
 
-    # need to process inner <a> tags
-    # to avoid collisions with adding url after <a> tag
+    # process inner of <a> tags to avoid collisions
+    # with adding url after <a> tag
     for node in element.cssselect('a'):
         href = node.get('href')
         if not href:
@@ -46,6 +46,12 @@ def html_to_readable(element):
             href,
             tail
         ))
+
+    # process inner of h* tags to avoid
+    # broken titles separating
+    for tag in H_TAGS:
+        for node in element.cssselect(tag):
+            inner_tags_to_text(node)
 
     inner_tags_to_text(element)
     return element.text
@@ -67,22 +73,28 @@ def inner_tags_to_text(element):
         else:
             tail = node.tail or u''
 
-        # check if tag closes current paragraph
         tag = node.tag
+
+        # check if tag closes current paragraph
         if tag == 'br':
             paragraphs.append(cur_str)
             cur_str = u''
+
         if tag in TAGS_TO_SEPARATE:
             paragraphs.append(cur_str)
             if tag != 'li':
                 paragraphs.append(u'')
+            text = node.text
+            if text:
+                paragraphs.append(node.text)
             cur_str = u''
+        else:
+            cur_str = ''.join((
+                cur_str,
+                node.text or u'',
+                tail
+            ))
 
-        cur_str = ''.join((
-            cur_str,
-            node.text or u'',
-            tail
-        ))
     paragraphs.append(cur_str)
 
     # need to delete inner tags to not include their text again
