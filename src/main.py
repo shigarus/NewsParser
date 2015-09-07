@@ -13,8 +13,12 @@ import htmltoreadable
 def main():
     logging.basicConfig(level=logging.DEBUG)
     parser = argparse.ArgumentParser()
-    parser.add_argument('--url', dest='url')
-    parser.add_argument('--target', dest='target')
+    parser.add_argument('-u', '--url', help='Target page url')
+    parser.add_argument(
+        '-t',
+        '--target',
+        help='Css selector to process text.'
+    )
     args = parser.parse_args()
 
     g = grab.Grab()
