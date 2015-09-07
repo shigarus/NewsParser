@@ -10,3 +10,5 @@ Parse usefull info from default news site to *.txt
 Формат вывода: *.txt файлы, соответствующие url, вида http://default.ru/news/2013/03/dtp/index.html => [CUR_DIR]/default.ru/news/2013/03/dtp/index.txt.
 
 Формат *.txt файла: ширина строки 80 символов, перенос по словам, абзацы и заголовки отделяются пустой строкой. Url, имеющий текстовое представление, записывается в виде \<текстовое представление \[url]>
+
+Подробное описание в файле description.txt
