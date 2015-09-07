@@ -98,8 +98,8 @@ def main():
             rules = config['rules']
         urls = [url, ]
     else:
-        urls = config['urls']
         rules = config['rules']
+        urls = config['urls']
 
     # process urls
     text_extractor = htmltoreadable.HtmlTextExtractor(rules)

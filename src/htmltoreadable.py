@@ -147,12 +147,10 @@ def _inner_tags_to_text(root_node):
             tail = node.tail or u''
 
         tag = node.tag
-
         # check if tag closes current paragraph
         if tag == 'br':
             paragraphs.append(cur_str)
             cur_str = u''
-
         if tag in TAGS_TO_SEPARATE:
             paragraphs.append(cur_str)
             if tag != 'li':
@@ -211,4 +209,3 @@ def _word_wrap(text):
     lines.append(text)
     lines.append('\r\n')
     return u'\r\n'.join(lines)
-
