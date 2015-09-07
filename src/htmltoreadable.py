@@ -14,17 +14,17 @@ TRASH_SPACES = re.compile(' {2,}')
 TRASH_SYMBOLS = re.compile('[\r\n\t]')
 
 
-def _get_site_name(url):
+def get_site_name(url):
     """
     :param url: basestring
     """
     if not isinstance(url, basestring):
         raise TypeError('url has to be basestring instance')
-    url = _morph_url(url)
+    url = morph_url(url)
     return url.split('/')[0]
 
 
-def _morph_url(url):
+def morph_url(url):
     """
     Morph url like
         http://default.ru/news/2013/03/dtp/ => default.ru/news/2013/03/dtp
@@ -57,7 +57,7 @@ class HtmlTextExtractor(object):
         """
         :return: list of css selectors
         """
-        site_name = _get_site_name(self._url)
+        site_name = get_site_name(self._url)
         return self._rules[site_name]['include']
 
     @property
@@ -65,7 +65,7 @@ class HtmlTextExtractor(object):
         """
         :return: list of css selectors
         """
-        site_name = _get_site_name(self._url)
+        site_name = get_site_name(self._url)
         site_exclude = self._rules[site_name]['exclude']
         return site_exclude + self._always_exlude
 

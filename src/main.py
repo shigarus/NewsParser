@@ -6,33 +6,7 @@ import json
 import logging
 import os
 
-import grab
-
 import htmltoreadable
-
-
-def get_site_name(url):
-    return url.split('/')[0]
-
-
-def morph_url(url):
-    """
-    Morph url like
-        http://default.ru/news/2013/03/dtp/ => default.ru/news/2013/03/dtp
-    :param url: basestring
-    :return: basestring
-    """
-    if not isinstance(url, basestring):
-        raise TypeError('url has to be basestring instance')
-
-    if url.startswith('http://'):
-        url = url[7:]
-    if url.startswith('www.'):
-        url = url[4:]
-    if url.endswith('/'):
-        url = url[:-1]
-
-    return url
 
 
 def write_to_file(url, text):
@@ -46,6 +20,8 @@ def write_to_file(url, text):
         raise TypeError('url has to be basestring instance')
     if not isinstance(text, basestring):
         raise TypeError('text has to be basestring instance')
+
+    url = htmltoreadable.morph_url(url)
 
     dir_path = os.path.dirname(url)
     file_path = url
@@ -102,34 +78,27 @@ def main():
         )
 
     if args.url:
-        url = morph_url(args.url)
-        site_name = get_site_name(url)
+        url = args.url
+        site_name = htmltoreadable.get_site_name(url)
         if args.target:
             exclude = args.exclude
             rule = dict(
                 include=[args.target, ],
                 exclude=[exclude, ] if exclude else []
             )
+            rules = {
+                site_name: rule
+            }
         else:
-            rule = config['rules'].get(site_name)
-        rule_for_url = {
-            url: rule
-        }
+            rules = config['rules']
+        urls = [url, ]
     else:
-        rule_for_url = {}
-        for url in config['urls']:
-            url = morph_url(url)
-            site_name = get_site_name(url)
-            rule_for_url[url] = config['rules'][site_name]
+        urls = config['urls']
+        rules = config['rules']
 
-    g = grab.Grab()
-
-    for url, rule in rule_for_url.items():
-        g.go('http://'+url)
-        target = rule['include'][0]
-        tree = g.doc.tree
-        target_element = tree.cssselect(target)
-        text = htmltoreadable.html_to_readable(target_element[0])
+    text_extractor = htmltoreadable.HtmlTextExtractor(rules)
+    for url in urls:
+        text = text_extractor.get_text(url)
         write_to_file(url, text)
 
 
