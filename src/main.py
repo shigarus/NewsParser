@@ -27,7 +27,11 @@ def write_to_file(url, text):
     dir_path = os.path.dirname(url)
     file_path = url
 
-    if file_path.endswith('.html') or file_path.endswith('.php'):
+    has_extension = True in (
+        file_path.endswith(ext)
+        for ext in ('.html', '.shtml', '.php')
+    )
+    if has_extension:
         point_pos = file_path.rfind('.')
         file_path = file_path[:point_pos]
     file_path = u''.join((
