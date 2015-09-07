@@ -175,16 +175,19 @@ def _inner_tags_to_text(root_node):
             node.getparent().remove(node)
 
     res = u'\r\n'.join((
-        _word_wrap(text)
+        _to_readable_text(text)
         for text in paragraphs
     ))
     res = re.sub(MANY_LINE_ENDINGS, '\r\n\r\n', res)
     root_node.text = res
 
 
-def _word_wrap(text):
+def _to_readable_text(text):
     """
-    Splits text with \r\n. Max symbols 80. Word wrap.
+    Deletes tabs, excess \r \n and spaces.
+    Splits text with \r\n.
+    Max symbols 80.
+    Word wrap.
     :param text: basestring
     :return: unicode
     """
