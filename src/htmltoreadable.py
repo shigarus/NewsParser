@@ -50,9 +50,10 @@ class HtmlTextExtractor(object):
         self._rules = rules
         self._grabber = grab.Grab()
         self._url = None
+        self._always_exlude = ['script', 'noscript']
 
     @property
-    def _include_tags(self):
+    def _include_selectors(self):
         """
         :return: list of css selectors
         """
@@ -65,7 +66,8 @@ class HtmlTextExtractor(object):
         :return: list of css selectors
         """
         site_name = _get_site_name(self._url)
-        return self._rules[site_name]['exclude']
+        site_exclude = self._rules[site_name]['exclude']
+        return site_exclude + self._always_exlude
 
     def _go_url(self):
         # grabber can lead wrong page if url
@@ -96,11 +98,11 @@ class HtmlTextExtractor(object):
                 node.getparent().remove(node)
 
         texts = []
-        for selector in self._include_tags:
+        for selector in self._include_selectors:
             for node in self._tree.cssselect(selector):
                 text = html_to_readable(node)
                 texts.append(text)
-        return u''.join(texts)
+        return u'\r\n'.join(texts)
 
 
 def del_trash_symbols(line):
@@ -146,7 +148,14 @@ def html_to_readable(element):
             inner_tags_to_text(node)
 
     inner_tags_to_text(element)
-    return element.text
+    text = element.text
+    # remove starts and ends trash symbols
+    while text[0] in ('\r', '\n'):
+        text = text[1:]
+    while text[-1] in ('\r', '\n'):
+        text = text[:-1]
+
+    return text
 
 
 def inner_tags_to_text(element):
