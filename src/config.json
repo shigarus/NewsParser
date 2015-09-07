@@ -7,11 +7,20 @@
   "rules": {
     "lenta.ru": {
       "include": [".b-topic__content"],
-      "exclude": [""]
+      "exclude": [
+        ".b-box_floated",
+        ".g-date",
+        ".b-label"
+      ]
     },
     "habrahabr.ru": {
       "include": [".post_show"],
-      "exclude": [""]
+      "exclude": [
+        ".published",
+        ".hubs",
+        ".tags",
+        ".infopanel_wrapper"
+      ]
     }
   }
 }
