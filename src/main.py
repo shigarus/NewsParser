@@ -46,7 +46,6 @@ def write_to_file(url, text):
 
 
 def main():
-    logging.basicConfig(level=logging.DEBUG)
     parser = argparse.ArgumentParser()
     parser.add_argument('-u', '--url', help='Target page url')
     parser.add_argument(
@@ -54,7 +53,12 @@ def main():
         '--target',
         help='Css selector to process text.'
     )
+    parser.add_argument('-d', '--debug', action='store_true')
+    parser.set_defaults(debug=False)
     args = parser.parse_args()
+
+    if args.debug:
+        logging.basicConfig(level=logging.DEBUG)
 
     g = grab.Grab()
     g.go(args.url)
