@@ -138,7 +138,7 @@ def _inner_tags_to_text(root_node):
     if not isinstance(root_node, lxml.html.HtmlElement):
         raise TypeError('element has to be lxml.html.HtmlElement instance')
     paragraphs = []
-    cur_str = u''
+    cur_paragraph = u''
     for node in root_node.iter():
         # need tail only for inner tag
         if node is root_node:
@@ -149,24 +149,24 @@ def _inner_tags_to_text(root_node):
         tag = node.tag
         # check if tag closes current paragraph
         if tag == 'br':
-            paragraphs.append(cur_str)
-            cur_str = u''
+            paragraphs.append(cur_paragraph)
+            cur_paragraph = u''
         if tag in TAGS_TO_SEPARATE:
-            paragraphs.append(cur_str)
+            paragraphs.append(cur_paragraph)
             if tag != 'li':
                 paragraphs.append(u'')
             text = node.text
             if text:
                 paragraphs.append(node.text)
-            cur_str = u''
+            cur_paragraph = u''
         else:
-            cur_str = ''.join((
-                cur_str,
+            cur_paragraph = ''.join((
+                cur_paragraph,
                 node.text or u'',
                 tail
             ))
 
-    paragraphs.append(cur_str)
+    paragraphs.append(cur_paragraph)
 
     # need to delete inner tags to not include their text again
     # if we will use this fnc on parent of the current tag
