@@ -16,7 +16,7 @@
       ]
     },
     "gazeta.ru": {
-      "include": ["h_1", ".article_context"],
+      "include": [".h_1", ".article_context"],
       "exclude": [
         ".incut",
         ".social-button-block",
