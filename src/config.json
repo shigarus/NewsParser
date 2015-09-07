@@ -1,0 +1,17 @@
+{
+  "urls": [
+    "http://lenta.ru/news/2015/09/06/lamafound/",
+    "lenta.ru/articles/2015/09/01/china/",
+    "http://habrahabr.ru/post/266293/"
+  ],
+  "rules": {
+    "lenta.ru": {
+      "include": [".b-topic__content"],
+      "exclude": [""]
+    },
+    "habrahabr.ru": {
+      "include": [".post_show"],
+      "exclude": [""]
+    }
+  }
+}
