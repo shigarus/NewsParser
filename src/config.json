@@ -2,7 +2,9 @@
   "urls": [
     "http://lenta.ru/news/2015/09/06/lamafound/",
     "lenta.ru/articles/2015/09/01/china/",
-    "http://habrahabr.ru/post/266293/"
+    "http://habrahabr.ru/post/266293/",
+    "http://www.gazeta.ru/business/2015/09/06/7740395.shtml",
+    "http://www.gazeta.ru/business/2015/08/31/7732703.shtml"
   ],
   "rules": {
     "lenta.ru": {
@@ -11,6 +13,15 @@
         ".b-box_floated",
         ".g-date",
         ".b-label"
+      ]
+    },
+    "gazeta.ru": {
+      "include": ["h_1", ".article_context"],
+      "exclude": [
+        ".incut",
+        ".social-button-block",
+        ".date_time",
+        ".social_inside"
       ]
     },
     "habrahabr.ru": {

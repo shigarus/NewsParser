@@ -74,7 +74,7 @@ class HtmlTextExtractor(object):
             for node in self._tree.cssselect(selector):
                 text = html_to_readable(node)
                 texts.append(text)
-        return u'\r\n'.join(texts)
+        return u'\r\n\r\n'.join(texts)
 
 
 def html_to_readable(root_node):
