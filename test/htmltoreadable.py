@@ -10,7 +10,7 @@ from src import htmltoreadable as hr
 def test():
     g = grab.Grab()
     g.go('http://habrahabr.ru/post/266293/')
-    root_node = g.css('.post_show')
+    root_node = g.doc.tree.cssselect('.post_show')[0]
     text = hr.html_to_readable(root_node)
     path = 'out'
     if not os.path.exists(path):
