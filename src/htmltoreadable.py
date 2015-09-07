@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import re
 
+import grab
 import lxml.html
-import lxml.etree
 
 
 H_TAGS = ['h{}'.format(i) for i in range(1, 7)]
@@ -14,7 +14,98 @@ TRASH_SPACES = re.compile(' {2,}')
 TRASH_SYMBOLS = re.compile('[\r\n\t]')
 
 
+def _get_site_name(url):
+    """
+    :param url: basestring
+    """
+    if not isinstance(url, basestring):
+        raise TypeError('url has to be basestring instance')
+    url = _morph_url(url)
+    return url.split('/')[0]
+
+
+def _morph_url(url):
+    """
+    Morph url like
+        http://default.ru/news/2013/03/dtp/ => default.ru/news/2013/03/dtp
+    :param url: basestring
+    :return: basestring
+    """
+    if not isinstance(url, basestring):
+        raise TypeError('url has to be basestring instance')
+
+    if url.startswith('http://'):
+        url = url[7:]
+    if url.startswith('www.'):
+        url = url[4:]
+    if url.endswith('/'):
+        url = url[:-1]
+
+    return url
+
+
+class HtmlTextExtractor(object):
+
+    def __init__(self, rules):
+        self._rules = rules
+        self._grabber = grab.Grab()
+        self._url = None
+
+    @property
+    def _include_tags(self):
+        """
+        :return: list of css selectors
+        """
+        site_name = _get_site_name(self._url)
+        return self._rules[site_name]['include']
+
+    @property
+    def _exclude_selectors(self):
+        """
+        :return: list of css selectors
+        """
+        site_name = _get_site_name(self._url)
+        return self._rules[site_name]['exclude']
+
+    def _go_url(self):
+        # grabber can lead wrong page if url
+        # won't start with http://
+        if not self._url.startswith('http://'):
+            url = u''.join((
+                u'http://',
+                self._url
+            ))
+        else:
+            url = self._url
+
+        self._grabber.go(url)
+
+    @property
+    def _tree(self):
+        return self._grabber.doc.tree
+
+    def get_text(self, url):
+        if not isinstance(url, basestring):
+            raise TypeError('url has to be basestring instance')
+
+        self._url = url
+        self._go_url()
+
+        for selector in self._exclude_selectors:
+            for node in self._tree.cssselect(selector):
+                node.getparent().remove(node)
+
+        texts = []
+        for selector in self._include_tags:
+            for node in self._tree.cssselect(selector):
+                text = html_to_readable(node)
+                texts.append(text)
+        return u''.join(texts)
+
+
 def del_trash_symbols(line):
+    if not isinstance(line, basestring):
+        raise TypeError('line has to be basestring instance')
     line = re.sub(TRASH_SYMBOLS, ' ', line)
     line = re.sub(TRASH_SPACES, ' ', line)
     return line.strip()
