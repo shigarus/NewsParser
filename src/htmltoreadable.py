@@ -77,15 +77,7 @@ class HtmlTextExtractor(object):
         return u'\r\n'.join(texts)
 
 
-def _del_trash_symbols(line):
-    if not isinstance(line, basestring):
-        raise TypeError('line has to be basestring instance')
-    line = re.sub(TRASH_SYMBOLS, ' ', line)
-    line = re.sub(TRASH_SPACES, ' ', line)
-    return line.strip()
-
-
-def html_to_readable(element):
+def html_to_readable(root_node):
     """
     Rules:
         length - 80 symbols
@@ -93,15 +85,15 @@ def html_to_readable(element):
         paragraphs and title separated by new line
         <a href='url'>sometext</a> transforms to sometext[url]
 
-    :param element: lxml.html.HtmlElement
+    :param root_node: lxml.html.HtmlElement
     :return: unicode
     """
-    if not isinstance(element, lxml.html.HtmlElement):
+    if not isinstance(root_node, lxml.html.HtmlElement):
         raise TypeError('element has to be lxml.html.HtmlElement instance')
 
     # process inner of <a> tags to avoid collisions
     # with adding url after <a> tag
-    for node in element.cssselect('a'):
+    for node in root_node.cssselect('a'):
         href = node.get('href')
         if not href:
             continue
@@ -116,12 +108,12 @@ def html_to_readable(element):
     # process inner of h* tags to avoid
     # broken titles separating
     for tag in TAGS_PARAGRAPHS:
-        for node in element.cssselect(tag):
+        for node in root_node.cssselect(tag):
             _inner_tags_to_text(node)
 
-    _inner_tags_to_text(element)
-    text = element.text
-    # remove starts and ends trash symbols
+    _inner_tags_to_text(root_node)
+    text = root_node.text
+    # remove starts and ends line endings
     while text[0] in ('\r', '\n'):
         text = text[1:]
     while text[-1] in ('\r', '\n'):
@@ -130,18 +122,26 @@ def html_to_readable(element):
     return text
 
 
-def _inner_tags_to_text(element):
+def _del_trash_symbols(line):
+    if not isinstance(line, basestring):
+        raise TypeError('line has to be basestring instance')
+    line = re.sub(TRASH_SYMBOLS, ' ', line)
+    line = re.sub(TRASH_SPACES, ' ', line)
+    return line.strip()
+
+
+def _inner_tags_to_text(root_node):
     """
     Replace inner tags to text
-    :param element: lxml.html.HtmlElement
+    :param root_node: lxml.html.HtmlElement
     """
-    if not isinstance(element, lxml.html.HtmlElement):
+    if not isinstance(root_node, lxml.html.HtmlElement):
         raise TypeError('element has to be lxml.html.HtmlElement instance')
     paragraphs = []
     cur_str = u''
-    for node in element.iter():
+    for node in root_node.iter():
         # need tail only for inner tag
-        if node is element:
+        if node is root_node:
             tail = u''
         else:
             tail = node.tail or u''
@@ -172,8 +172,8 @@ def _inner_tags_to_text(element):
 
     # need to delete inner tags to not include their text again
     # if we will use this fnc on parent of the current tag
-    for node in element.iter():
-        if node is not element:
+    for node in root_node.iter():
+        if node is not root_node:
             node.getparent().remove(node)
 
     res = u'\r\n'.join((
@@ -181,7 +181,7 @@ def _inner_tags_to_text(element):
         for text in paragraphs
     ))
     res = re.sub(MANY_LINE_ENDINGS, '\r\n\r\n', res)
-    element.text = res
+    root_node.text = res
 
 
 def _word_wrap(text):
