@@ -7,6 +7,7 @@ import lxml.etree
 
 H_TAGS = ['h{}'.format(i) for i in range(1, 7)]
 TAGS_TO_SEPARATE = H_TAGS + ['p', 'li', ]
+TAGS_PARAGRAPHS = H_TAGS + ['p', ]
 
 MANY_LINE_ENDINGS = re.compile('(\n|\r\n){3,}')
 TRASH_SPACES = re.compile(' {2,}')
@@ -49,7 +50,7 @@ def html_to_readable(element):
 
     # process inner of h* tags to avoid
     # broken titles separating
-    for tag in H_TAGS:
+    for tag in TAGS_PARAGRAPHS:
         for node in element.cssselect(tag):
             inner_tags_to_text(node)
 
