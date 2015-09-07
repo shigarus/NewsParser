@@ -7,6 +7,7 @@ import logging
 import os
 
 import htmltoreadable
+import toolkit
 
 
 def write_to_file(url, text):
@@ -21,7 +22,7 @@ def write_to_file(url, text):
     if not isinstance(text, basestring):
         raise TypeError('text has to be basestring instance')
 
-    url = htmltoreadable.morph_url(url)
+    url = toolkit.morph_url(url)
 
     dir_path = os.path.dirname(url)
     file_path = url
@@ -42,6 +43,7 @@ def write_to_file(url, text):
 
 
 def main():
+    # parse args
     parser = argparse.ArgumentParser()
 
     parser.add_argument('-u', '--url', help='Target page url')
@@ -64,10 +66,12 @@ def main():
         exclude=None
     )
     args = parser.parse_args()
+    # /parse args
 
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
 
+    # getting config
     if os.path.exists(args.config):
         with codecs.open(args.config, 'r', encoding='utf-8') as fh:
             config = json.load(fh)
@@ -77,9 +81,10 @@ def main():
             rules={}
         )
 
+    # getting rules and urls for processing
     if args.url:
         url = args.url
-        site_name = htmltoreadable.get_site_name(url)
+        site_name = toolkit.get_site_name(url)
         if args.target:
             exclude = args.exclude
             rule = dict(
@@ -96,6 +101,7 @@ def main():
         urls = config['urls']
         rules = config['rules']
 
+    # process urls
     text_extractor = htmltoreadable.HtmlTextExtractor(rules)
     for url in urls:
         text = text_extractor.get_text(url)

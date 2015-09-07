@@ -4,6 +4,8 @@ import re
 import grab
 import lxml.html
 
+import toolkit
+
 
 H_TAGS = ['h{}'.format(i) for i in range(1, 7)]
 TAGS_TO_SEPARATE = H_TAGS + ['p', 'li', ]
@@ -12,36 +14,6 @@ TAGS_PARAGRAPHS = H_TAGS + ['p', ]
 MANY_LINE_ENDINGS = re.compile('(\n|\r\n){3,}')
 TRASH_SPACES = re.compile(' {2,}')
 TRASH_SYMBOLS = re.compile('[\r\n\t]')
-
-
-def get_site_name(url):
-    """
-    :param url: basestring
-    """
-    if not isinstance(url, basestring):
-        raise TypeError('url has to be basestring instance')
-    url = morph_url(url)
-    return url.split('/')[0]
-
-
-def morph_url(url):
-    """
-    Morph url like
-        http://default.ru/news/2013/03/dtp/ => default.ru/news/2013/03/dtp
-    :param url: basestring
-    :return: basestring
-    """
-    if not isinstance(url, basestring):
-        raise TypeError('url has to be basestring instance')
-
-    if url.startswith('http://'):
-        url = url[7:]
-    if url.startswith('www.'):
-        url = url[4:]
-    if url.endswith('/'):
-        url = url[:-1]
-
-    return url
 
 
 class HtmlTextExtractor(object):
@@ -57,7 +29,7 @@ class HtmlTextExtractor(object):
         """
         :return: list of css selectors
         """
-        site_name = get_site_name(self._url)
+        site_name = toolkit.get_site_name(self._url)
         return self._rules[site_name]['include']
 
     @property
@@ -65,7 +37,7 @@ class HtmlTextExtractor(object):
         """
         :return: list of css selectors
         """
-        site_name = get_site_name(self._url)
+        site_name = toolkit.get_site_name(self._url)
         site_exclude = self._rules[site_name]['exclude']
         return site_exclude + self._always_exlude
 
@@ -105,7 +77,7 @@ class HtmlTextExtractor(object):
         return u'\r\n'.join(texts)
 
 
-def del_trash_symbols(line):
+def _del_trash_symbols(line):
     if not isinstance(line, basestring):
         raise TypeError('line has to be basestring instance')
     line = re.sub(TRASH_SYMBOLS, ' ', line)
@@ -133,7 +105,7 @@ def html_to_readable(element):
         href = node.get('href')
         if not href:
             continue
-        inner_tags_to_text(node)
+        _inner_tags_to_text(node)
         href = u'[{}]'.format(href)
         tail = node.tail or u''
         node.tail = u''.join((
@@ -145,9 +117,9 @@ def html_to_readable(element):
     # broken titles separating
     for tag in TAGS_PARAGRAPHS:
         for node in element.cssselect(tag):
-            inner_tags_to_text(node)
+            _inner_tags_to_text(node)
 
-    inner_tags_to_text(element)
+    _inner_tags_to_text(element)
     text = element.text
     # remove starts and ends trash symbols
     while text[0] in ('\r', '\n'):
@@ -158,7 +130,7 @@ def html_to_readable(element):
     return text
 
 
-def inner_tags_to_text(element):
+def _inner_tags_to_text(element):
     """
     Replace inner tags to text
     :param element: lxml.html.HtmlElement
@@ -205,14 +177,14 @@ def inner_tags_to_text(element):
             node.getparent().remove(node)
 
     res = u'\r\n'.join((
-        word_wrap(text)
+        _word_wrap(text)
         for text in paragraphs
     ))
     res = re.sub(MANY_LINE_ENDINGS, '\r\n\r\n', res)
     element.text = res
 
 
-def word_wrap(text):
+def _word_wrap(text):
     """
     Splits text with \r\n. Max symbols 80. Word wrap.
     :param text: basestring
@@ -220,7 +192,7 @@ def word_wrap(text):
     """
     if not isinstance(text, basestring):
         raise TypeError('text parameter has to be basestring instance')
-    text = del_trash_symbols(text)
+    text = _del_trash_symbols(text)
     if len(text) <= 80:
         return u''.join((text, u'\r\n'))
     lines = []
